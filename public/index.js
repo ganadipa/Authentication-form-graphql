@@ -1,3 +1,5 @@
+
+
 function signUp() {
     const username = document.getElementById('signupUsername').value;
     const email = document.getElementById('signupEmail').value;
@@ -30,7 +32,12 @@ function signUp() {
         })
     })
     .then(response => response.json())
-    .then(data => console.log('SignUp data:', data))
+    .then(data => {
+        console.log('SignUp data:', data)
+        if (!data.errors) {
+            window.location.href = '/welcome';
+        }
+    })
     .catch(error => console.error('SignUp error:', error));
 }
 
@@ -65,6 +72,37 @@ function signIn() {
         })
     })
     .then(response => response.json())
-    .then(data => console.log('SignIn data:', data))
-    .catch(error => console.error('SignIn error:', error));
+    .then(data => {
+        console.log('SignIn data:', data)
+        console.log(data)
+    })
+}
+
+function getCurrentUser() {
+
+    const query = `
+    query CurrentUser {
+        currentUser {
+          id
+          username
+          email
+        }
+      }
+    `;
+
+    fetch('http://localhost:3055/graphql', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            query: query
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('GetCurrentUser data:', data)
+    })
+    .catch(error => console.error('GetCurrentUser error:', error));
 }

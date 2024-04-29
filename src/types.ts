@@ -1,4 +1,4 @@
-
+import { Request, Response } from 'express';
 
 export type SignUpArgs = {
     username: string;
@@ -15,6 +15,19 @@ export interface User {
     id: number;
     username: string;
     email: string;
-    hashed_password: string; // Note: It's important to ensure consistency in naming conventions
+}
+
+export interface Context {
+    req: Request;
+    res: Response;
   }
-  
+
+interface ResultSetHeader {
+    fieldCount: number;
+    affectedRows: number;
+    insertId: number;
+    info: string;
+    serverStatus: number;
+    warningStatus: number;
+    changedRows: number;
+}

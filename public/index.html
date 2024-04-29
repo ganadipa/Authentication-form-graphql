@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up and Sign In</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        form {
+            border: solid 1px #ddd;
+            padding: 20px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form id="signupForm">
+            <h2>Sign Up</h2>
+            <input type="text" id="signupUsername" placeholder="Username" required><br>
+            <input type="email" id="signupEmail" placeholder="Email" required><br>
+            <input type="password" id="signupPassword" placeholder="Password" required><br>
+            <button type="button" onclick="signUp()">Sign Up</button>
+        </form>
+
+        <form id="signinForm">
+            <h2>Sign In</h2>
+            <input type="email" id="signinEmail" placeholder="Email" required><br>
+            <input type="password" id="signinPassword" placeholder="Password" required><br>
+            <button type="button" onclick="signIn()">Sign In</button>
+        </form>
+    </div>
+    <button type="button" onclick="getCurrentUser()">get current user!</button>
+    <script src="index.js"></script>
+</body>
+</html>

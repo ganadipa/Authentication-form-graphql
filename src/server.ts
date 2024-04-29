@@ -1,21 +1,29 @@
 import 'dotenv/config';
 import express from 'express';
-import { ApolloServer, ServerRegistration, gql } from 'apollo-server-express';
+import { ApolloServer, ServerRegistration} from 'apollo-server-express';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import path from 'path';
+import cookieParser from 'cookie-parser';
+import { Request, Response } from 'express';
+import { redirectIfLoggedIn, redirectIfNotLoggedIn } from './middleware';
 
 
 
 const app = express();
 
-// Serve static files from 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(express.json()); 
 
+app.use(cookieParser());
 
-const server = new ApolloServer({ typeDefs, resolvers });
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req, res }) => ({ req, res })
+});
 
 async function startApolloServer() {
     await server.start();
@@ -30,7 +38,10 @@ app.listen(PORT, () => {
   console.log(`GraphQL ready at http://localhost:${PORT}${server.graphqlPath}`);
 });
 
+app.get('/', redirectIfLoggedIn, (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+})
 
-app.get('/', (req, res) => {
-  console.log('index.html served');
-});
+app.get('/welcome', redirectIfNotLoggedIn, (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '../public', 'welcome.html'));
+})

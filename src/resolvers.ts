@@ -1,21 +1,71 @@
 import { ApolloError } from "apollo-server-express";
-import { SignInArgs, SignUpArgs, User } from "./types";
+import { Context, SignInArgs, SignUpArgs, User } from "./types";
 import bcrypt from "bcrypt";  
 import db from "./db/dbConfig";
-import { RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+import jwt from "jsonwebtoken";
 
-function generateTokenForUser(username: string): string {
-  // TODO: JWT token generation
-  return username
+type TokenPayload = {
+  email: string
 }
 
-const signUpResolver = async (_: any, { username, email, password }: SignUpArgs) => {
+function generateTokenForUser(payload: TokenPayload): string {
+  const secretKey = process.env.JWT_SECRET;
+
+  if (!secretKey) {
+    throw new ApolloError('JWT_SECRET not set.', "JWT_SECRET_NOT_SET");
+  }
+
+  const options = {
+    expiresIn: '1h'
+  };
+
+  const token = jwt.sign(payload, secretKey, options);
+
+  return token
+}
+
+const currentUserResolver = async (_: any, __: any, { req }: Context) => {
+  const token = req.cookies.token as (string | undefined);
+  if (!token) {
+    return null;
+  }
+
+  let email;
+  try {
+    const data = jwt.verify(token, process.env.JWT_SECRET as string);
+    email = (data as TokenPayload).email;
+  } catch (error: unknown) {
+    return null;
+  }
+
+
+  if (!email) {
+    return null;
+  }
+
+  const [result] = await db.query<User[] & RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
+  if (result.length === 0) {
+    return null;
+  }
+
+  const ret: User = {
+    id: result[0].id,
+    username: result[0].username,
+    email: result[0].email
+  }
+
+
+  return ret
+}
+
+const signUpResolver = async (_: any, { username, email, password }: SignUpArgs, {res}: Context) => {
   // Check if the email is already in use
   /**
    * This must be use to prevent sql injection
    */
   const [results] = await db.query<User & RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
-  console.log(results);
+  (results);
   if (results.length > 0) {
     throw new ApolloError('Email already in use.', "EMAIL_IN_USE");
   }
@@ -28,15 +78,22 @@ const signUpResolver = async (_: any, { username, email, password }: SignUpArgs)
   /**
    * Insert the user into the database
    */
-  await db.query('INSERT INTO users (username, email, hashed_password) VALUES (?, ?, ?)', [username, email, hashedPassword]);
+  const result = await db.query<ResultSetHeader & RowDataPacket[]>(
+    'INSERT INTO users (username, email, hashed_password) VALUES (?, ?, ?)',
+    [username, email, hashedPassword]
+  );
+
 
   // Generate a token for the user
-  const token = generateTokenForUser(username); 
+  const token = generateTokenForUser({email}); 
+
+  // set cookie
+  res.cookie('token', token, { httpOnly: true });
 
   return { token, message: "Sign-up successful" };
 }
 
-const signInResolver = async (_: any, { email, password }: SignInArgs) => {
+const signInResolver = async (_: any, { email, password }: SignInArgs, {res}: Context) => {
   // Check if the user exists, no sql injection
   const [user] = await db.query<User & RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
   if (Array.isArray(user) && user.length === 0) {
@@ -53,7 +110,10 @@ const signInResolver = async (_: any, { email, password }: SignInArgs) => {
   }
 
   // Generate a token for the user
-  const token = generateTokenForUser(user[0].username);
+  const token = generateTokenForUser({email});
+
+  // Set cookie
+  res.cookie('token', token, { httpOnly: true });
 
   return { token, message: "Sign-in successful" };
 }
@@ -61,7 +121,7 @@ const signInResolver = async (_: any, { email, password }: SignInArgs) => {
 
 export const resolvers = {
   Query: {
-    hello: () => "Hello, world!"
+    currentUser: currentUserResolver
   },
 
   Mutation: {
