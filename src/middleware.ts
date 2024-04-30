@@ -11,21 +11,22 @@ export function redirectIfLoggedIn(req: Request, res: Response, next: NextFuncti
     const token = req.cookies.token as (string | undefined);
 
     if (!token) {
-        next();
+        return next();
     }
+
 
     let email;
     try {
-        const data = jwt.verify(token as string , process.env.ACCESS_TOKEN_SECRET!);
+        const data = jwt.verify(token as string , process.env.JWT_SECRET!);
         email = (data as DecodedToken).email;
     } catch (error) {
-        next();
+        return next();
     }
 
     if (email) {
-        res.redirect('/welcome');
+        return res.redirect('/welcome');
     } else {
-        next();
+        return next();
     };
 }
 
@@ -33,20 +34,20 @@ export function redirectIfNotLoggedIn(req: Request, res: Response, next: NextFun
     const token = req.cookies.token as (string | undefined);
 
     if (!token) {
-        res.redirect('/');
+        return res.redirect('/');
     }
 
     let email;
     try {
-        const data = jwt.verify(token as string , process.env.ACCESS_TOKEN_SECRET!);
+        const data = jwt.verify(token as string , process.env.JWT_SECRET!);
         email = (data as DecodedToken).email;
     } catch (error) {
-        res.redirect('/');
+        return res.redirect('/');
     }
 
     if (email) {
-        next();
+        return next();
     } else {
-        res.redirect('/');
+        return res.redirect('/');
     };
 }

@@ -25,8 +25,29 @@ function generateTokenForUser(payload: TokenPayload): string {
   return token
 }
 
+/**
+ * This function handles authorization sent via cookies or via headers
+ * if (both token are set and inconsistent) then
+ *    throw an error
+ * else 
+ *     token is set to something, check whether the specific token means something.
+ */
 const currentUserResolver = async (_: any, __: any, { req }: Context) => {
-  const token = req.cookies.token as (string | undefined);
+  const tokenFromCookies = req.cookies.token as (string | undefined);
+  const tokenFromHeaders = req.headers.token as (string | undefined);
+  
+
+  if (!tokenFromCookies && !tokenFromHeaders) {
+    return null
+  }
+
+  let token;
+  if (!tokenFromCookies || !tokenFromHeaders) {
+    token = tokenFromCookies || tokenFromHeaders
+  } else if (tokenFromCookies != tokenFromHeaders) {
+    throw new ApolloError("Authorization token is not consistent!", "TOKEN_INCONSISTENT");
+  }
+
   if (!token) {
     return null;
   }
@@ -60,6 +81,11 @@ const currentUserResolver = async (_: any, __: any, { req }: Context) => {
 }
 
 const signUpResolver = async (_: any, { username, email, password }: SignUpArgs, {res}: Context) => {
+  if (username === "" || email === "" || password === "") {
+    throw new ApolloError('Invalid input.', "INVALID_INPUT");
+  }
+
+
   // Check if the email is already in use
   /**
    * This must be use to prevent sql injection
@@ -94,6 +120,11 @@ const signUpResolver = async (_: any, { username, email, password }: SignUpArgs,
 }
 
 const signInResolver = async (_: any, { email, password }: SignInArgs, {res}: Context) => {
+  if (email === "" || password === "") {
+    throw new ApolloError('Invalid input.', "INVALID_INPUT");
+  }
+
+
   // Check if the user exists, no sql injection
   const [user] = await db.query<User & RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
   if (Array.isArray(user) && user.length === 0) {

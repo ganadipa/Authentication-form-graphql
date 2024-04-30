@@ -39,7 +39,7 @@ app.listen(PORT, () => {
 });
 
 app.get('/', redirectIfLoggedIn, (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../public', 'main.html'));
 })
 
 app.get('/welcome', redirectIfNotLoggedIn, (req: Request, res: Response) => {

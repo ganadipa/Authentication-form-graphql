@@ -74,11 +74,16 @@ function signIn() {
     .then(response => response.json())
     .then(data => {
         console.log('SignIn data:', data)
-        console.log(data)
+        if (!data.errors) {
+            console.log("redirecting to welcome")
+            window.location.href = "/welcome"
+        }
     })
 }
 
 function getCurrentUser() {
+
+    
 
     const query = `
     query CurrentUser {
@@ -102,7 +107,9 @@ function getCurrentUser() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('GetCurrentUser data:', data)
+        console.log(document.getElementById("userdetail").textContent)
+        console.log(data)
+        document.getElementById("userdetail").textContent = (data.data.currentUser.email || "Not yet logged in")
     })
     .catch(error => console.error('GetCurrentUser error:', error));
 }
