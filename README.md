@@ -1,30 +1,36 @@
-
-
 # Authentication Form Graphql
+
 A simple web apps consist of only authentication form.
 
 ## Requirements
-UNIX like operating system (WSL (TESTED), Linux (TESTED) , macOS)
-mysql
-Node Package Manager (NPM)
+
+UNIX like operating system (WSL (TESTED), Linux (TESTED) , macOS) <br/>
+mysql <br/>
+Node Package Manager (NPM) <br/>
 
 ### Setup
 
 1. Clone this repo
+
 ```sh
 git clone git@github.com:ganadipa/Authentication-form-graphql.git
 ```
+
 2. Copy the .env
+
 ```sh
 cp .env.example .env
 ```
+
 3. Fill in the blanks in the .env file
+
 ```sh
 DB_NAME = <name>
 DB_PASSWORD = <password>
 ```
 
 4. Setup the database. With \<name\> and \<password\> that is used in the .env file
+
 ```sh
 sudo mysql -u root -p
 CREATE DATABASE gqlauth;
@@ -42,6 +48,7 @@ sudo systemctl start mysql
 ```
 
 5. Ready for development
+
 ```sh
 npm install
 npm run dev
