@@ -29,6 +29,8 @@ CREATE DATABASE gqlauth;
 EXIT;
 
 sudo mysql -u root -p gqlauth < src/db/seed.sql
+
+sudo mysql -u root -p
 CREATE USER '<name>'@'localhost' IDENTIFIED BY '<password>';
 GRANT ALL PRIVILEGES ON gqlauth.* TO '<name>'@'localhost';
 FLUSH PRIVILEGES;
