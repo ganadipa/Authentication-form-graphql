@@ -4,7 +4,9 @@
 A simple web apps consist of only authentication form.
 
 ## Requirements
-UNIX like operating system (WSL, Linux, macOS)
+UNIX like operating system (WSL (TESTED), Linux (TESTED) , macOS)
+mysql
+Node Package Manager (NPM)
 
 ### Setup
 
@@ -41,5 +43,6 @@ sudo systemctl start mysql
 
 5. Ready for development
 ```sh
+npm install
 npm run dev
 ```
