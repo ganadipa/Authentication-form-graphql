@@ -24,6 +24,10 @@ DB_PASSWORD = <password>
 
 4. Setup the database. With \<name\> and \<password\> that is used in the .env file
 ```sh
+sudo mysql -u root -p
+CREATE DATABASE gqlauth;
+EXIT;
+
 sudo mysql -u root -p gqlauth < src/db/seed.sql
 CREATE USER '<name>'@'localhost' IDENTIFIED BY '<password>';
 GRANT ALL PRIVILEGES ON gqlauth.* TO '<name>'@'localhost';
